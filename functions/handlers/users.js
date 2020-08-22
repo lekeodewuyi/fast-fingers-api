@@ -1,6 +1,4 @@
-const { db, admin, firebase } = require('../utilities/admin');
-
-const { config } = require('../utilities/config')
+const { db, firebase } = require('../utilities/admin');
 
 const { validateSignupData, validateLoginData } = require('../utilities/validators');
 const { user } = require('firebase-functions/lib/providers/auth');
