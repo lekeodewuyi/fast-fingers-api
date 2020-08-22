@@ -1,7 +1,6 @@
 const { db, firebase } = require('../utilities/admin');
 
 const { validateSignupData, validateLoginData } = require('../utilities/validators');
-const { user } = require('firebase-functions/lib/providers/auth');
 
 
 exports.signup = (req, res) => {
