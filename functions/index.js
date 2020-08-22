@@ -7,7 +7,7 @@ const cors = require ('cors');
 app.use(cors());
 
 
-const { signup } = require('./handlers/signup')
+const { signup } = require('./handlers/users')
 
 
 app.post('/', (req, res) => {
