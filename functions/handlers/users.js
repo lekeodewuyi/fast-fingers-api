@@ -54,3 +54,42 @@ exports.signup = (req, res) => {
             }
         })
 }
+
+
+exports.login = (req, res) => {
+    const user = {
+        email: req.body.email,
+        password: req.body.password
+    }
+
+    const { valid, errors } = validateLoginData(user);
+
+    if (!valid) {
+        return res.status(400).json({errors});
+    }
+
+
+    let loginResponse = {};
+    firebase.auth().signInWithEmailAndPassword(user.email, user.password)
+    .then((data) => {
+        return data.user.getIdToken();
+    })
+    .then((idToken) => {
+        loginResponse.token = idToken;
+        return db.doc(`users/${user.email}`).get();
+    })
+    .then((doc) => {
+        loginResponse.userData = doc.data();
+        return res.json({loginResponse})
+    })
+    .catch((error) => {
+        if (error.code === 'auth/wrong-password') {
+            return res.status(403).json({ password: 'Wrong password, please try again' });
+        } else if (error.code === 'auth/user-not-found') {
+            return res.status(403).json({ email: 'This email is not registered as a user' });
+        } else {
+            console.log(error)
+            return res.status(500).json({ general: "Something went wrong, please try again" })
+        }
+    })
+}
