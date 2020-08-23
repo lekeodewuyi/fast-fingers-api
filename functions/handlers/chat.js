@@ -8,7 +8,7 @@ exports.postChat = (req, res) => {
     }
 
     if (newChat.message.trim() === '') {
-        return res.status(400).json({message: "Please enter a message"});
+        return res.status(400).json({error: "Please enter a message"});
     }
 
     let chat = {};
@@ -20,6 +20,27 @@ exports.postChat = (req, res) => {
         })
         .then(() => {
             return res.status(200).json({chat});
+        })
+        .catch((error) => {
+            console.error(error);
+            console.error(error);
+            return res.status(500).json({error: "Something went wrong"});
+        })
+}
+
+
+
+
+exports.getChats = (req, res) => {
+    let allChats = [];
+    db.collection('chats').orderBy('createdAt', 'desc').get()
+        .then((data) => {
+            data.forEach((doc) => {
+                allChats.push(doc.data());
+            })
+        })
+        .then(() => {
+            return res.status(200).json({allChats});
         })
         .catch((error) => {
             console.error(error);

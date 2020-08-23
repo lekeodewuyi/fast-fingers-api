@@ -14,7 +14,11 @@ exports.signup = (req, res) => {
     const { valid, errors} = validateSignupData(newUser);
 
     if (!valid) {
-        return res.status(400).json({errors});
+        let name = errors.name;
+        let email = errors.email;
+        let password = errors.password;
+        let confirmPassword = errors.confirmPassword;
+        return res.status(400).json({name, email, password, confirmPassword});
     }
 
     let token, userId;
@@ -62,7 +66,9 @@ exports.login = (req, res) => {
     const { valid, errors } = validateLoginData(user);
 
     if (!valid) {
-        return res.status(400).json({errors});
+        let password = errors.password;
+        let email = errors.email;
+        return res.status(400).json({email, password});
     }
 
 
@@ -84,7 +90,11 @@ exports.login = (req, res) => {
             return res.status(403).json({ password: 'Wrong password, please try again' });
         } else if (error.code === 'auth/user-not-found') {
             return res.status(403).json({ email: 'This email is not registered as a user' });
-        } else {
+        } else if (error.code === 'auth/invalid-email') {
+            return res.status(403).json({ email: 'Please enter a valid email' });
+        } else if (error.code === 'auth/too-many-requests') {
+            return res.status(403).json({ email: 'Too many invalid requests, please try again later' });
+        }else {
             console.log(error)
             return res.status(500).json({ general: "Something went wrong, please try again" })
         }

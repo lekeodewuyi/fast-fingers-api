@@ -8,7 +8,7 @@ app.use(cors());
 
 const { auth } = require('./utilities/auth')
 const { signup, login } = require('./handlers/users');
-const { postChat } = require('./handlers/chat');
+const { postChat, getChats } = require('./handlers/chat');
 
 
 app.post('/', (req, res) => {
@@ -19,5 +19,6 @@ app.post('/signup', signup);
 app.post('/login', login);
 
 app.post('/postchat', auth, postChat);
+app.post('/getchats', auth, getChats);
 
 exports.api = functions.https.onRequest(app);
