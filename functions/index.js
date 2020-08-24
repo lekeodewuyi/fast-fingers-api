@@ -8,7 +8,7 @@ app.use(cors());
 
 const { auth } = require('./utilities/auth')
 const { signup, login, getUser } = require('./handlers/users');
-const { getTitles } = require('./handlers/data');
+const { getTitles, generateText } = require('./handlers/data');
 const { postChat, getChats } = require('./handlers/chat');
 
 
@@ -24,5 +24,6 @@ app.post('/postchat', auth, postChat);
 app.post('/getchats', auth, getChats);
 
 app.get('/titles', getTitles);
+app.post('/generate/:type', generateText);
 
 exports.api = functions.https.onRequest(app);
