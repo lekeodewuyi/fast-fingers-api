@@ -100,3 +100,17 @@ exports.login = (req, res) => {
         }
     })
 }
+
+
+exports.getUser = (req, res) => {
+    const email = req.params.email;
+
+    db.doc(`/users/${email}`).get()
+        .then((data) => {
+            console.log(data.data());
+            return res.json({data});
+        })
+        .catch((error) => {
+            console.log(error)
+        })
+}
