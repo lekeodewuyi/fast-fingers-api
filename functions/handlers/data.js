@@ -37,3 +37,21 @@ exports.generateText = (req, res) => {
     return res.json({result});
 
 }
+
+
+exports.updatePreference = (req, res) => {
+
+    //email from auth
+    const userEmail = email;
+    const preference = req.body.preference;
+
+    db.doc(`/users/${userEmail}`).update({preference: preference})
+        .then(() => {
+            return res.json({userEmail, preference})
+        })
+        .catch((error) => {
+            console.error(error);
+            console.error(error);
+            return res.status(500).json({error: "Something went wrong"});
+        })
+}

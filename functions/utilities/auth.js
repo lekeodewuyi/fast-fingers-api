@@ -15,6 +15,7 @@ exports.auth = (req, res, next) => {
     admin.auth().verifyIdToken(idToken)
         .then(decodedToken => {
             req.user = decodedToken;
+            email = req.user.email;
             return db.collection('users')
                 .where('email', '==', req.user.email)
                 .limit(1)
