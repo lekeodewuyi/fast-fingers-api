@@ -6,7 +6,7 @@ const app = express();
 const cors = require ('cors');
 app.use(cors());
 
-const { auth } = require('./utilities/auth')
+const { auth, basicAuth } = require('./utilities/auth')
 const { signup, login, getUser } = require('./handlers/users');
 const { getTitles, generateText, updatePreference } = require('./handlers/data');
 const { postChat, getChats } = require('./handlers/chat');
@@ -24,7 +24,7 @@ app.post('/postchat', auth, postChat);
 app.post('/getchats', auth, getChats);
 
 app.get('/titles', getTitles);
-app.post('/generate/:type', generateText);
+app.post('/generatetext', basicAuth, generateText);
 app.post('/setpreference', auth, updatePreference);
 
 exports.api = functions.https.onRequest(app);
