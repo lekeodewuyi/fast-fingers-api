@@ -34,7 +34,7 @@ exports.generateText = (req, res) => {
             })
             if (!Array.isArray(userData) || !userData.length) {
                 console.log("no such user")
-                result = txtgen.sentence();
+                result = txtgen.paragraph();
                 return res.json({result});
             } else {
                 console.log(userData[0].email)
@@ -43,15 +43,19 @@ exports.generateText = (req, res) => {
 
                 if (type == null || type == undefined || typeof type == undefined) {
                     console.log("User has no preference")
-                    result = txtgen.sentence();
+                    result = txtgen.paragraph();
                     return res.json({result});
                 } else {
                     if (type === "sentence") {
-                        result = txtgen.sentence();
-                    } else if (type === "paragraph") {
                         result = txtgen.paragraph();
+                    } else if (type === "paragraph") {
+                        let part1 = txtgen.paragraph();
+                        let part2 = txtgen.paragraph();
+                        let part3 = txtgen.paragraph();
+                        result = `${part1}${part2}`
+                        // result = txtgen.paragraph();
                     } else {
-                        result = txtgen.sentence();
+                        result = txtgen.paragraph();
                     }
                     console.log(type);
                     console.log(result)
