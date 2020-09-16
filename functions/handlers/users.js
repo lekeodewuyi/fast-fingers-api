@@ -40,6 +40,9 @@ exports.signup = (req, res) => {
                 preference: null,
                 stats: false,
                 score: 0,
+                cpm: 0,
+                wpm: 0,
+                accuracy: 0,
                 createdAt: new Date().toISOString()
             }
             return db.doc(`users/${newUser.email}`).set(userCredentials);
