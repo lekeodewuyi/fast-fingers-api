@@ -122,11 +122,11 @@ exports.updateStats = (req, res) => {
                     accuracy: stats.accuracy,
                 })
             } else {
-                return res.json({message: "current score is higher than new score"});
+                return res.json({message: "This new score is not higher than the existing score"});
             }
         })
         .then(() => {
-            return res.json({message: "new stat data aplied"});
+            return res.json({message: "new stats data applied"});
         })
         .catch((error) => {
             console.error(error);
