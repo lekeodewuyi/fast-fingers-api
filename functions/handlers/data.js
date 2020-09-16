@@ -119,9 +119,11 @@ exports.updateStats = (req, res) => {
             return docRef = db.doc(`/users/${email}`);
         })
         .then( async () => {
-            if (stats.score > score) {
-                await docRef.update({score: stats.score})
-            }
+            await docRef.update({stats: true})
+            await docRef.update({score: Number(stats.score + score)})
+            // if (stats.score > score) {
+            //     await docRef.update({score: stats.score})
+            // }
             if (stats.cpm > cpm) {
                 await docRef.update({cpm: stats.cpm})
             }
@@ -172,6 +174,7 @@ exports.retrieveLeaderBoard = (req, res) => {
                     wpm: doc.data().wpm,
                     cpm: doc.data().cpm,
                     accuracy: doc.data().accuracy,
+                    identifier: doc.data().identifier
                 });
             })
             return res.json({leaderboard: scores});

@@ -1,4 +1,5 @@
 const { db, firebase } = require('../utilities/admin');
+const crypto = require('crypto');
 
 const { validateSignupData, validateLoginData } = require('../utilities/validators');
 
@@ -12,6 +13,11 @@ exports.signup = (req, res) => {
     }
 
     const { valid, errors} = validateSignupData(newUser);
+
+    const buf = Buffer.alloc(20);
+    crypto.randomFillSync(buf).toString('hex')
+    crypto.randomFillSync(buf, 5, 5);
+    const identifier = buf.toString('hex');
 
     if (!valid) {
         let name = errors.name;
@@ -43,11 +49,24 @@ exports.signup = (req, res) => {
                 cpm: 0,
                 wpm: 0,
                 accuracy: 0,
+                identifier,
                 createdAt: new Date().toISOString()
             }
             return db.doc(`users/${newUser.email}`).set(userCredentials);
         })
         .then(() => {
+            userCredentials = {
+                name: newUser.name,
+                email: newUser.email,
+                preference: null,
+                stats: false,
+                score: 0,
+                cpm: 0,
+                wpm: 0,
+                accuracy: 0,
+                identifier,
+                createdAt: new Date().toISOString()
+            }
             return res.json({token, userCredentials});
         })
         .catch((error) => {
