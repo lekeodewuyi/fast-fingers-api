@@ -97,3 +97,38 @@ exports.updatePreference = (req, res) => {
             return res.status(500).json({error: "Something went wrong"});
         })
 }
+
+
+exports.updateStats = (req, res) => {
+    const stats = {
+        score: req.body.score,
+        cpm: req.body.cpm,
+        wpm: req.body.wpm,
+        accuracy: req.body.accuracy
+    }
+
+    let score;
+    db.doc(`/users/${email}`).get()
+        .then((doc) => {
+            score = doc.data().score;
+
+            if (stats.score > score) {
+                return db.doc(`/users/${email}`)
+                .update({
+                    stats: true,
+                    score: stats.score,
+                    cpm: stats.cpm,
+                    wpm: stats.wpm,
+                    accuracy: stats.accuracy,
+                })
+            } else {
+                return res.json({message: "current score is higher than new score"});
+            }
+        })
+        .then(() => {
+            return res.json({message: "new stat data aplied"});
+        })
+        .catch((error) => {
+            console.error(error);
+        })
+}
