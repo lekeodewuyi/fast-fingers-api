@@ -107,32 +107,59 @@ exports.updateStats = (req, res) => {
         accuracy: req.body.accuracy
     }
 
-    let score;
+    let oldDoc;
+    let score, cpm, wpm, accuracy;
     db.doc(`/users/${email}`).get()
         .then((doc) => {
+            oldDoc = doc.data();
             score = doc.data().score;
-
-            if (stats.score > score) {
-                return db.doc(`/users/${email}`)
-                .update({
-                    stats: true,
-                    score: stats.score,
-                    cpm: stats.cpm,
-                    wpm: stats.wpm,
-                    accuracy: stats.accuracy,
-                })
-            } else {
-                return res.json({message: "This new score is not higher than the existing score"});
-            }
+            cpm = doc.data().cpm;
+            wpm = doc.data().wpm;
+            accuracy = doc.data().accuracy;
+            return docRef = db.doc(`/users/${email}`);
         })
-        .then(() => {
-            return res.json({message: "new stats data applied"});
+        .then( async () => {
+            if (stats.score > score) {
+                await docRef.update({score: stats.score})
+            }
+            if (stats.cpm > cpm) {
+                await docRef.update({cpm: stats.cpm})
+            }
+            if (stats.wpm > wpm) {
+                await docRef.update({wpm: stats.wpm})
+            }
+            if (stats.accuracy > accuracy) {
+                await docRef.update({accuracy: stats.accuracy})
+            }
+            return db.doc(`/users/${email}`).get();
+        })
+        .then((doc) => {
+            if (doc.data().score !== score || doc.data().wpm !== wpm || doc.data().cpm !== cpm || doc.data().accuracy !== accuracy) {
+                return res.json({message: "new stats data applied"});
+            } else {
+                return res.json({message: "The new stats are not higher than the existing stats"});
+            }
         })
         .catch((error) => {
             console.error(error);
             res.status(500).json({error: "Something went wrong"})
         })
 }
+
+
+// score = doc.data().score;
+// if (stats.score > score) {
+//     return db.doc(`/users/${email}`)
+//     .update({
+//         stats: true,
+//         score: stats.score,
+//         cpm: stats.cpm,
+//         wpm: stats.wpm,
+//         accuracy: stats.accuracy,
+//     })
+// } else {
+//     return res.json({message: "This new score is not higher than the existing score"});
+// }
 
 exports.retrieveLeaderBoard = (req, res) => {
     db.collection("users").where("stats", "==", true).orderBy("score", "desc").limit(10).get()
@@ -144,10 +171,10 @@ exports.retrieveLeaderBoard = (req, res) => {
                     score: doc.data().score,
                     wpm: doc.data().wpm,
                     cpm: doc.data().cpm,
-                    acuracy: doc.data().accuracy,
+                    accuracy: doc.data().accuracy,
                 });
             })
-            return res.json({scores});
+            return res.json({leaderboard: scores});
         })
         .catch((error) => {
             console.error(error);
