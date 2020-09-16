@@ -22,6 +22,7 @@ exports.auth = (req, res, next) => {
         .then(data => {
             email = data.docs[0].data().email;
             name = data.docs[0].data().name;
+            // userData = data.docs[0].data();
             return next();
         })
         .catch(err => {

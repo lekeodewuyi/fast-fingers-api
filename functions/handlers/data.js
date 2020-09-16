@@ -2,19 +2,19 @@ const { db } = require('../utilities/admin');
 const txtgen = require('txtgen');
 
 
-exports.getTitles = (req, res) => {
-    // titleId = req.params.titleId
+// exports.getTitles = (req, res) => {
+//     // titleId = req.params.titleId
 
-    response = [];
-    db.doc(`data/new`).get()
-        .then((doc) => {
-            response = doc.data();
+//     response = [];
+//     db.doc(`data/new`).get()
+//         .then((doc) => {
+//             response = doc.data();
 
-            return res.json({response})
-        })
+//             return res.json({response})
+//         })
     
         
-}
+// }
 
 
 exports.generateText = (req, res) => {
@@ -50,12 +50,12 @@ exports.generateText = (req, res) => {
                         result = txtgen.paragraph();
                     } else if (type === "paragraph") {
                         let part1 = txtgen.paragraph();
-                        let part2 = txtgen.paragraph();
+                        let part2 = txtgen.sentence();
                         let part3 = txtgen.paragraph();
-                        result = `${part1}${part2}`
+                        result = `${part1} ${part2}`
                         // result = txtgen.paragraph();
                     } else {
-                        result = txtgen.paragraph();
+                        result = type;
                     }
                     console.log(type);
                     console.log(result)
@@ -75,13 +75,21 @@ exports.generateText = (req, res) => {
 
 exports.updatePreference = (req, res) => {
 
-    //email from auth
+    //email and userData from auth
     const userEmail = email;
     const preference = req.body.preference;
 
     db.doc(`/users/${userEmail}`).update({preference: preference})
         .then(() => {
-            return res.json({userEmail, preference})
+            return db.collection('users').where("email" ,"=", email).get();
+            // return res.json({userData, preference})
+        })
+        .then((data) => {
+            let userData = [];
+            data.forEach((doc) => {
+                userData.push(doc.data());
+            })
+            return res.json({userData, preference})
         })
         .catch((error) => {
             console.error(error);
