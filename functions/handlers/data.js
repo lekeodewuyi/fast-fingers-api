@@ -130,5 +130,27 @@ exports.updateStats = (req, res) => {
         })
         .catch((error) => {
             console.error(error);
+            res.status(500).json({error: "Something went wrong"})
+        })
+}
+
+exports.retrieveLeaderBoard = (req, res) => {
+    db.collection("users").where("stats", "==", true).orderBy("score", "desc").limit(10).get()
+        .then((data) => {
+            let scores = [];
+            data.forEach((doc) => {
+                scores.push({
+                    name: doc.data().name,
+                    score: doc.data().score,
+                    wpm: doc.data().wpm,
+                    cpm: doc.data().cpm,
+                    acuracy: doc.data().accuracy,
+                });
+            })
+            return res.json({scores});
+        })
+        .catch((error) => {
+            console.error(error);
+            res.status(500).json({error: "Something went wrong"})
         })
 }

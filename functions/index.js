@@ -8,7 +8,7 @@ app.use(cors());
 
 const { auth, basicAuth } = require('./utilities/auth')
 const { signup, login, getUser } = require('./handlers/users');
-const { generateText, updatePreference, updateStats } = require('./handlers/data');
+const { generateText, updatePreference, updateStats, retrieveLeaderBoard } = require('./handlers/data');
 const { postChat, getChats } = require('./handlers/chat');
 
 
@@ -25,7 +25,8 @@ app.post('/getchats', auth, getChats);
 
 app.post('/generatetext', basicAuth, generateText);
 app.post('/setpreference', auth, updatePreference);
-app.post('/user/stats/update', auth, updateStats);
+app.post('/stats/user/update', auth, updateStats);
+app.post('/leaderboard/retrieve', retrieveLeaderBoard)
 
 
 
