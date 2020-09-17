@@ -108,18 +108,25 @@ exports.updateStats = (req, res) => {
     }
 
     let oldDoc;
-    let score, cpm, wpm, accuracy;
+    let score, topScore, cpm, wpm, accuracy;
+    let userDetails = {}
     db.doc(`/users/${email}`).get()
         .then( async (doc) => {
             oldDoc = doc.data();
             score = doc.data().score;
+            topScore = doc.data().topScore;
             cpm = doc.data().cpm;
             wpm = doc.data().wpm;
             accuracy = doc.data().accuracy;
-            if (doc.data().preference === null) {
+            if (doc.data().preference === null || doc.data().preference === "sentence" || doc.data().preference === "paragraph") {
                 const docRef = db.doc(`/users/${email}`);
                 await docRef.update({stats: true})
                 await docRef.update({score: Number(stats.score + score)})
+                console.log("top score", topScore)
+                console.log("new score", stats.score)
+                if (stats.score > topScore) {
+                    await docRef.update({topScore: stats.score})
+                }
                 if (stats.cpm > cpm) {
                     await docRef.update({cpm: stats.cpm})
                 }
@@ -129,7 +136,24 @@ exports.updateStats = (req, res) => {
                 if (stats.accuracy > accuracy) {
                     await docRef.update({accuracy: stats.accuracy})
                 }
-                return res.json({message: "New stats data applied"});
+                await db.doc(`/users/${email}`).get()
+                    .then((doc) => {
+                        userDetails = {
+                            name: doc.data().name,
+                            email: doc.data().email,
+                            preference: doc.data().preference,
+                            stats: doc.data().stats,
+                            score: doc.data().score,
+                            topScore: doc.data().topScore,
+                            cpm: doc.data().cpm,
+                            wpm: doc.data().wpm,
+                            accuracy: doc.data().accuracy,
+                            identifier: doc.data.identifier,
+                            createdAt: doc.data.createdAt
+                        }
+                    })
+                    let message = {message: "New stats data applied"}
+                return res.json({message, userDetails});
             }  else {
                 return res.json({message: "User is using a custom text, so the stats from this section are not applied."})
             }

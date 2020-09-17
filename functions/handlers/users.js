@@ -61,6 +61,7 @@ exports.signup = (req, res) => {
                 preference: null,
                 stats: false,
                 score: 0,
+                topScore: 0,
                 cpm: 0,
                 wpm: 0,
                 accuracy: 0,
@@ -107,7 +108,21 @@ exports.login = (req, res) => {
         return db.doc(`users/${user.email}`).get();
     })
     .then((doc) => {
-        loginResponse.userData = doc.data();
+        // loginResponse.userData = doc.data();
+        loginResponse.userData = {
+            name: doc.data().name,
+            email: doc.data().email,
+            preference: doc.data().preference,
+            stats: doc.data().stats,
+            score: doc.data().score,
+            topScore: doc.data().topScore,
+            cpm: doc.data().cpm,
+            wpm: doc.data().wpm,
+            accuracy: doc.data().accuracy,
+            identifier: doc.data().identifier,
+            createdAt: doc.data().createdAt
+        }
+        console.log(loginResponse.userData)
         return res.json({loginResponse})
     })
     .catch((error) => {
