@@ -110,36 +110,28 @@ exports.updateStats = (req, res) => {
     let oldDoc;
     let score, cpm, wpm, accuracy;
     db.doc(`/users/${email}`).get()
-        .then((doc) => {
+        .then( async (doc) => {
             oldDoc = doc.data();
             score = doc.data().score;
             cpm = doc.data().cpm;
             wpm = doc.data().wpm;
             accuracy = doc.data().accuracy;
-            return docRef = db.doc(`/users/${email}`);
-        })
-        .then( async () => {
-            await docRef.update({stats: true})
-            await docRef.update({score: Number(stats.score + score)})
-            // if (stats.score > score) {
-            //     await docRef.update({score: stats.score})
-            // }
-            if (stats.cpm > cpm) {
-                await docRef.update({cpm: stats.cpm})
-            }
-            if (stats.wpm > wpm) {
-                await docRef.update({wpm: stats.wpm})
-            }
-            if (stats.accuracy > accuracy) {
-                await docRef.update({accuracy: stats.accuracy})
-            }
-            return db.doc(`/users/${email}`).get();
-        })
-        .then((doc) => {
-            if (doc.data().score !== score || doc.data().wpm !== wpm || doc.data().cpm !== cpm || doc.data().accuracy !== accuracy) {
-                return res.json({message: "new stats data applied"});
-            } else {
-                return res.json({message: "The new stats are not higher than the existing stats"});
+            if (doc.data().preference === null) {
+                const docRef = db.doc(`/users/${email}`);
+                await docRef.update({stats: true})
+                await docRef.update({score: Number(stats.score + score)})
+                if (stats.cpm > cpm) {
+                    await docRef.update({cpm: stats.cpm})
+                }
+                if (stats.wpm > wpm) {
+                    await docRef.update({wpm: stats.wpm})
+                }
+                if (stats.accuracy > accuracy) {
+                    await docRef.update({accuracy: stats.accuracy})
+                }
+                return res.json({message: "New stats data applied"});
+            }  else {
+                return res.json({message: "User is using a custom text, so the stats from this section are not applied."})
             }
         })
         .catch((error) => {
@@ -147,21 +139,6 @@ exports.updateStats = (req, res) => {
             res.status(500).json({error: "Something went wrong"})
         })
 }
-
-
-// score = doc.data().score;
-// if (stats.score > score) {
-//     return db.doc(`/users/${email}`)
-//     .update({
-//         stats: true,
-//         score: stats.score,
-//         cpm: stats.cpm,
-//         wpm: stats.wpm,
-//         accuracy: stats.accuracy,
-//     })
-// } else {
-//     return res.json({message: "This new score is not higher than the existing score"});
-// }
 
 exports.retrieveLeaderBoard = (req, res) => {
     db.collection("users").where("stats", "==", true).orderBy("score", "desc").limit(10).get()
