@@ -1,4 +1,4 @@
-const { db } = require('../utilities/admin');
+const { db, admin } = require('../utilities/admin');
 const txtgen = require('txtgen');
 
 
@@ -107,19 +107,18 @@ exports.updateStats = (req, res) => {
         accuracy: req.body.accuracy
     }
 
-    let oldDoc;
-    let score, topScore, cpm, wpm, accuracy;
+    const docRef = db.collection('users').doc(email);
+    let statsLength, score, topScore, cpm, wpm, accuracy;
     let userDetails = {}
     db.doc(`/users/${email}`).get()
         .then( async (doc) => {
-            oldDoc = doc.data();
+            statsLength = doc.data().statsLength;
             score = doc.data().score;
             topScore = doc.data().topScore;
             cpm = doc.data().cpm;
             wpm = doc.data().wpm;
             accuracy = doc.data().accuracy;
             if (doc.data().preference === null || doc.data().preference === "sentence" || doc.data().preference === "paragraph") {
-                const docRef = db.doc(`/users/${email}`);
                 await docRef.update({stats: true})
                 await docRef.update({score: Number(stats.score + score)})
                 console.log("top score", topScore)
@@ -136,8 +135,55 @@ exports.updateStats = (req, res) => {
                 if (stats.accuracy > accuracy) {
                     await docRef.update({accuracy: stats.accuracy})
                 }
+
+                                
+                await docRef.update({
+                    allScores: admin.firestore.FieldValue.arrayUnion({[new Date().toISOString()]: stats.score})
+                });
+                await docRef.update({
+                    allCpm: admin.firestore.FieldValue.arrayUnion({[new Date().toISOString()]: stats.cpm})
+                });
+                await docRef.update({
+                    allWpm: admin.firestore.FieldValue.arrayUnion({[new Date().toISOString()]: stats.wpm})
+                });
+                await docRef.update({
+                    allAccuracy: admin.firestore.FieldValue.arrayUnion({[new Date().toISOString()]: stats.accuracy})
+                });
+                await docRef.update({statsLength: statsLength + 1})
+
                 await db.doc(`/users/${email}`).get()
-                    .then((doc) => {
+                    .then( async (doc) => {
+                        statsLength = doc.data().statsLength;
+                        if ( statsLength > 5 ) {
+                            let allScores = doc.data().allScores
+                            allScores.shift();
+                            await docRef.update({allScores: allScores})
+
+                            let allCpm = doc.data().allCpm
+                            allCpm.shift();
+                            await docRef.update({allCpm: allCpm})
+
+                            let allWpm = doc.data().allWpm
+                            allWpm.shift();
+                            await docRef.update({allWpm: allWpm})
+
+                            let allAccuracy = doc.data().allAccuracy
+                            allAccuracy.shift();
+                            await docRef.update({allAccuracy: allAccuracy})
+
+                            await docRef.update({statsLength: statsLength - 1})
+                        }
+                        // score is the cummulative score
+                        function arrayAve (array) {
+                            let arrayTotal = 0;
+                            let average = 0;
+                            for (let i = 0; i < array.length; i++) {
+                                    let eachScore = Number(Object.values(array[i]));
+                                    arrayTotal += eachScore;
+                            }
+                            return average = arrayTotal / array.length;
+                        }
+
                         userDetails = {
                             name: doc.data().name,
                             email: doc.data().email,
@@ -145,11 +191,15 @@ exports.updateStats = (req, res) => {
                             stats: doc.data().stats,
                             score: doc.data().score,
                             topScore: doc.data().topScore,
+                            aveScore: Math.round(arrayAve(doc.data().allScores)),
                             cpm: doc.data().cpm,
+                            aveCpm: Math.round(arrayAve(doc.data().allCpm)),
                             wpm: doc.data().wpm,
-                            accuracy: doc.data().accuracy,
-                            identifier: doc.data.identifier,
-                            createdAt: doc.data.createdAt
+                            aveWpm: Math.round(arrayAve(doc.data().allWpm)),
+                            accuracy: (doc.data().accuracy).toFixed(2),
+                            aveAccuracy: (arrayAve(doc.data().allAccuracy)).toFixed(2),
+                            identifier: doc.data().identifier,
+                            createdAt: doc.data().createdAt
                         }
                     })
                     let message = {message: "New stats data applied"}

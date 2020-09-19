@@ -40,32 +40,44 @@ exports.signup = (req, res) => {
         .then((idToken) => {
             token = idToken;
                 userCredentials = {
+                userId: userId,
                 name: newUser.name,
                 email: newUser.email,
-                userId: userId,
                 preference: null,
                 stats: false,
+                topScore: 0,
+                allScores: [],
                 score: 0,
+                allCpm: [],
                 cpm: 0,
+                allWpm: [],
                 wpm: 0,
+                allAccuracy: [],
                 accuracy: 0,
                 identifier,
+                statsLength: 0,
                 createdAt: new Date().toISOString()
             }
             return db.doc(`users/${newUser.email}`).set(userCredentials);
         })
         .then(() => {
+            // *score is cummulative
             userCredentials = {
                 name: newUser.name,
                 email: newUser.email,
                 preference: null,
                 stats: false,
-                score: 0,
                 topScore: 0,
+                allScores: [],
+                score: 0,
+                allCpm: [],
                 cpm: 0,
+                allWpm: [],
                 wpm: 0,
+                allAccuracy: [],
                 accuracy: 0,
                 identifier,
+                statsLength: 0,
                 createdAt: new Date().toISOString()
             }
             return res.json({token, userCredentials});
@@ -109,6 +121,17 @@ exports.login = (req, res) => {
     })
     .then((doc) => {
         // loginResponse.userData = doc.data();
+
+        function arrayAve (array) {
+            let arrayTotal = 0;
+            let average = 0;
+            for (let i = 0; i < array.length; i++) {
+                    let eachScore = Number(Object.values(array[i]));
+                    arrayTotal += eachScore;
+            }
+            return average = arrayTotal / array.length;
+        }
+
         loginResponse.userData = {
             name: doc.data().name,
             email: doc.data().email,
@@ -116,9 +139,13 @@ exports.login = (req, res) => {
             stats: doc.data().stats,
             score: doc.data().score,
             topScore: doc.data().topScore,
+            aveScore: Math.round(arrayAve(doc.data().allScores)),
             cpm: doc.data().cpm,
+            aveCpm: Math.round(arrayAve(doc.data().allCpm)),
             wpm: doc.data().wpm,
-            accuracy: doc.data().accuracy,
+            aveWpm: Math.round(arrayAve(doc.data().allWpm)),
+            accuracy: (doc.data().accuracy).toFixed(2),
+            aveAccuracy: (arrayAve(doc.data().allAccuracy)).toFixed(2),
             identifier: doc.data().identifier,
             createdAt: doc.data().createdAt
         }

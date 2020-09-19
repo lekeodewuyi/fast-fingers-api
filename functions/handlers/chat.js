@@ -2,9 +2,9 @@ const { db } = require('../utilities/admin');
 
 exports.postChat = (req, res) => {
     const newChat = {
-        message: req.body.message,
+        message: String(req.body.message),
         createdAt: new Date().toISOString(),
-        name: name
+        name: String(name)
     }
 
     if (newChat.message.trim() === '') {
