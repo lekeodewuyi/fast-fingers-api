@@ -11,10 +11,10 @@ const { generateText, updatePreference, updateStats, retrieveLeaderBoard } = req
 const { postChat, getChats } = require('./handlers/chat');
 
 const corsOption = {
-    origin: 'https://twtr.lekeodewuyi.com',
+    origin: 'https://ffingers.lekeodewuyi.com',
     optionsSuccessStatus: 200
 }
-const referrer_domain = "https://twtr.lekeodewuyi.com"
+const referrer_domain = "https://ffingers.lekeodewuyi.com"
 
 
 app.all('/*', function(req, res, next) {
