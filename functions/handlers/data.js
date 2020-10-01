@@ -154,7 +154,7 @@ exports.updateStats = (req, res) => {
                 await db.doc(`/users/${email}`).get()
                     .then( async (doc) => {
                         statsLength = doc.data().statsLength;
-                        if ( statsLength > 5 ) {
+                        if ( statsLength > 30 ) {
                             let allScores = doc.data().allScores
                             allScores.shift();
                             await docRef.update({allScores: allScores})
