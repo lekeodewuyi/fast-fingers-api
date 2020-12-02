@@ -10,19 +10,21 @@ const { signup, login, getUser } = require('./handlers/users');
 const { generateText, updatePreference, updateStats, retrieveLeaderBoard } = require('./handlers/data');
 const { postChat, getChats } = require('./handlers/chat');
 
+const whitelist = ['https://fast-fingers-dev.netlify.app', 'https://ffingers.lekeodewuyi.com']
 const corsOption = {
-    origin: 'https://ffingers.lekeodewuyi.com',
+    origin: whitelist,
     optionsSuccessStatus: 200
 }
-const referrer_domain = "https://ffingers.lekeodewuyi.com"
-
 
 app.all('/*', function(req, res, next) {
-    if(req.headers.referer.indexOf(referrer_domain) == -1){
-        console.log("no")
-      res.send('Invalid Request')
+    for (let i = 0; i < whitelist.length; i++) {
+      if (req.headers.referer.indexOf(whitelist[i]) > -1) {
+        console.log(whitelist[i]);
+        return next()
+      }
     }
-    next();
+    console.log("no")
+    return res.status(400).json({error: 'Invalid Request'})
   });
 app.use(cors(corsOption));
 
