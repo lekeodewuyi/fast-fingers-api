@@ -26,8 +26,8 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.17.1",
-    "firebase": "^7.19.0",
+    "firebase": "^7.24.0",
     "instagrammar": "^1.0.7",
-    "txtgen": "^2.2.7"
+    "txtgen": "^2.2.8"
   }
 }
